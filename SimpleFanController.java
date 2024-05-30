@@ -28,11 +28,15 @@ public class SimpleFanController {
 
     public SimpleFanController(String address) throws InterruptedException, IOException {
         BluetoothManager manager = BluetoothManager.getBluetoothManager();
-        boolean initialized = manager.startDiscovery();
-
-        List<BluetoothDevice> devices;
-        while ((devices = manager.getDevices()).isEmpty()) {
-            Thread.sleep(1000);
+        
+        // Start discovery only if the device is not found
+        List<BluetoothDevice> devices = manager.getDevices();
+        if (devices.isEmpty()) {
+            manager.startDiscovery();
+            while ((devices = manager.getDevices()).isEmpty()) {
+                Thread.sleep(500);
+            }
+            manager.stopDiscovery(); // Stop discovery once devices are found
         }
 
         for (BluetoothDevice dev : devices) {
@@ -46,11 +50,16 @@ public class SimpleFanController {
             throw new IOException("Device not found");
         }
 
+        // Ensure proper disconnection before attempting to connect
+        if (device.getConnected()) {
+            device.disconnect();
+        }
+
         // Check if the device is already connected
         if (!device.getConnected()) {
             // Retry logic for connecting to the device with a shorter delay
             boolean connected = false;
-            int retries = 5;
+            int retries = 10;
             while (retries > 0 && !connected) {
                 try {
                     device.connect();
@@ -58,7 +67,11 @@ public class SimpleFanController {
                 } catch (BluetoothException e) {
                     System.err.println("Connection failed, retrying... (" + retries + " retries left)");
                     retries--;
-                    Thread.sleep(500); // Wait for 0.5 seconds before retrying
+                    try {
+                        Thread.sleep(200); // Wait for 0.2 seconds before retrying
+                    } catch (InterruptedException ie) {
+                        System.err.println("Thread sleep interrupted: " + ie.getMessage());
+                    }
                 }
             }
 
@@ -163,7 +176,9 @@ public class SimpleFanController {
     }
 
     public void close() throws IOException {
-        device.disconnect();
+        if (device.getConnected()) {
+            device.disconnect();
+        }
     }
 
     public static void main(String[] args) {
@@ -218,4 +233,3 @@ public class SimpleFanController {
         }
     }
 }
-
