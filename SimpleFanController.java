@@ -16,7 +16,6 @@
  * Change Fan Direction to Reverse:
  * sudo java -Djava.library.path=/usr/local/lib/arm-linux-gnueabihf -cp .:/usr/local/lib/lib/java/tinyb.jar SimpleFanController 78:04:73:19:77:BC direction reverse
  */
-
 import tinyb.*;
 import java.util.List;
 import java.io.IOException;
@@ -189,7 +188,7 @@ public class SimpleFanController {
             System.out.println("  off");
             System.out.println("  speed <value>");
             System.out.println("  direction <forward|reverse>");
-            return;
+            System.exit(1);
         }
 
         String macAddress = args[0];
@@ -208,7 +207,7 @@ public class SimpleFanController {
                 case "speed":
                     if (args.length < 3) {
                         System.out.println("Missing speed value");
-                        return;
+                        System.exit(1);
                     }
                     int speed = Integer.parseInt(args[2]);
                     controller.setFanSpeed(speed);
@@ -216,7 +215,7 @@ public class SimpleFanController {
                 case "direction":
                     if (args.length < 3) {
                         System.out.println("Missing direction value");
-                        return;
+                        System.exit(1);
                     }
                     String direction = args[2];
                     boolean forward = direction.equalsIgnoreCase("forward");
@@ -224,12 +223,16 @@ public class SimpleFanController {
                     break;
                 default:
                     System.out.println("Unknown command");
+                    System.exit(1);
                     break;
             }
 
             controller.close();
+            System.out.println("Success");
         } catch (Exception e) {
             e.printStackTrace();
+            System.out.println("Failure");
+            System.exit(1);
         }
     }
 }
