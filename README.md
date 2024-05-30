@@ -2,6 +2,9 @@ SimpleFanController
 
 This project is a Java application for controlling a Bluetooth-enabled fan using a Raspberry Pi.
 
+It connects to the Fanimation Bluetooth controller the DC version.  The one I have is the BTCR9.
+https://fanimation.com/product-category/controls-remotes/fansync/fansync-bluetooth/
+
 Requirements
 
 - Raspberry Pi OS (Tested on Raspberry Pi 3B+ OS Raspbian GNU/Linux 11 (bullseye))
